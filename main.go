@@ -20,6 +20,7 @@ type User struct {
 	Email string `json:"email"`
 }
 
+
 // getusers returns a list of users
 func getUsers(w http.ResponseWriter, r *http.Request) {
 	rows, err := DB.Query("SELECT id, name, email FROM users")
@@ -68,10 +69,15 @@ func initDB() {
 	fmt.Println("Database connected successfully!")
 }
 
+func loadhomepage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "index.html")
+}
+
 func main() {
 	initDB()
 	// Set up routes and start your server here...
 	http.HandleFunc("/users", getUsers)
+	http.HandleFunc("/", loadhomepage)
 
 	//start server
 	fmt.Println("starting server on port 8080...")
