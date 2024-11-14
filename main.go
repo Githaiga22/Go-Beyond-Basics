@@ -71,7 +71,7 @@ func initDB() {
 
 func loadhomepage(w http.ResponseWriter, r *http.Request) {
 	// Query the database to get users
-	rows, err := DB.Query("SELECT id, name, email FROM users")
+	rows, err := DB.Query("SELECT id, name, email FROM users") // retrieves all records from the users table.
 	if err != nil {
 		http.Error(w, "Error fetching users: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -82,11 +82,11 @@ func loadhomepage(w http.ResponseWriter, r *http.Request) {
 	var users []User
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {  //scans the values from the current row and stores them in the user struct.
 			http.Error(w, "Error scanning user: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		users = append(users, user)
+		users = append(users, user) //values are appended to the users slice once succesfully read from DB
 	}
 
 	// HTML template to render the users
@@ -96,14 +96,14 @@ func loadhomepage(w http.ResponseWriter, r *http.Request) {
 
 	// Loop through users and display them in a table
 	for _, user := range users {
-		html += fmt.Sprintf("<tr><td>%d</td><td>%s</td><td>%s</td></tr>", user.ID, user.Name, user.Email)
+		html += fmt.Sprintf("<tr><td>%d</td><td>%s</td><td>%s</td></tr>", user.ID, user.Name, user.Email)  //function formats the user's ID, Name, and Email into an HTML table row
 	}
 
 	html += "</table></body></html>"
 
-	// Set the content type to HTML and write the response
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(html))
+
+	w.Header().Set("Content-Type", "text/html")  //tells the browser that the response is HTML.
+	w.Write([]byte(html))  //writes the HTML to the response body, which the browser renders as a webpage.
 }
 
 func main() {
