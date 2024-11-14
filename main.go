@@ -70,7 +70,40 @@ func initDB() {
 }
 
 func loadhomepage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "index.html")
+	// Query the database to get users
+	rows, err := DB.Query("SELECT id, name, email FROM users")
+	if err != nil {
+		http.Error(w, "Error fetching users: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	// Create a list to hold users
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+			http.Error(w, "Error scanning user: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		users = append(users, user)
+	}
+
+	// HTML template to render the users
+	html := "<html><head><title>Users List</title></head><body>"
+	html += "<h1>Users List</h1>"
+	html += "<table border='1'><tr><th>ID</th><th>Name</th><th>Email</th></tr>"
+
+	// Loop through users and display them in a table
+	for _, user := range users {
+		html += fmt.Sprintf("<tr><td>%d</td><td>%s</td><td>%s</td></tr>", user.ID, user.Name, user.Email)
+	}
+
+	html += "</table></body></html>"
+
+	// Set the content type to HTML and write the response
+	w.Header().Set("Content-Type", "text/html")
+	w.Write([]byte(html))
 }
 
 func main() {
